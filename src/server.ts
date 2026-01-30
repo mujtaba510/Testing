@@ -23,6 +23,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Database connection middleware for serverless
+app.use(async (_req: Request, _res: Response, next: NextFunction) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    next(error);
+  }
+});
+
 // Routes
 app.use("/api/auth", authRoutes);
 
