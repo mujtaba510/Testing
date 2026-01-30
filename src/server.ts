@@ -60,18 +60,28 @@ const startServer = async (): Promise<void> => {
     // Connect to database
     await connectDB();
 
-    // Start listening
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-    });
+    // Start listening (only in development)
+    if (process.env.NODE_ENV !== "production") {
+      app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+      });
+    }
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
   }
 };
 
-// Start server in all environments
-startServer();
+// For Vercel serverless functions
+export default (req: any, res: any) => {
+  // Ensure database is connected
+  connectDB().catch(console.error);
 
-export default app;
+  return app(req, res);
+};
+
+// Start server for local development
+if (process.env.NODE_ENV !== "production") {
+  startServer();
+}
