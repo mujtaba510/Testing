@@ -28,7 +28,7 @@ src/
     └── authRoutes.ts   # API routes
 ```
 
-## 🛠️ Installation
+## 🛠️ Installation & Development
 
 1. **Clone and install dependencies:**
 
@@ -42,28 +42,100 @@ src/
    cp .env.example .env
    ```
 
-   Edit `.env` with your actual credentials:
-   - MongoDB URI
-   - SMTP credentials (Gmail App Password recommended)
-   - JWT secret
-   - Other settings
+   Edit `.env` with your actual credentials
 
-3. **Build and run:**
+3. **Run in development:**
+   ```bash
+   npm run dev
+   ```
+
+## 🚀 Production Deployment on Render
+
+### Step 1: Prepare Your Project
+
+1. **Build the project:**
 
    ```bash
-   # Development
-   npm run dev
-
-   # Production
    npm run build
+   ```
+
+2. **Test production build:**
+   ```bash
    npm start
    ```
 
-## 📧 Email Setup (Gmail)
+### Step 2: Deploy to Render
 
-1. Enable 2-Factor Authentication on your Google account
-2. Generate App Password: https://myaccount.google.com/apppasswords
-3. Use the 16-character password in `SMTP_PASS`
+#### Option A: Using Render Dashboard (Recommended)
+
+1. **Create Render Account:**
+   - Go to [render.com](https://render.com)
+   - Sign up with GitHub/GitLab account
+
+2. **Connect Repository:**
+   - Click "New +" → "Web Service"
+   - Connect your GitHub/GitLab repository
+   - Select this project
+
+3. **Configure Service:**
+   - **Name:** `auth-api` (or your choice)
+   - **Runtime:** `Node`
+   - **Build Command:** `npm run build`
+   - **Start Command:** `npm start`
+
+4. **Environment Variables:**
+   Add these in Render dashboard:
+   ```
+   NODE_ENV=production
+   PORT=10000
+   MONGODB_URI=your-mongodb-atlas-connection-string
+   JWT_SECRET=your-super-secret-jwt-key-32-chars-min
+   JWT_EXPIRY=7d
+   COOKIE_EXPIRY=1
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASS=your-gmail-app-password
+   EMAIL_FROM_NAME=Your App Name
+   CORS_ORIGIN=https://your-frontend-domain.com
+   ```
+
+#### Option B: Using render.yaml (Blueprint)
+
+1. **Push `render.yaml` to your repository**
+2. **Deploy via Render Blueprint:**
+   - Go to Render → "New +" → "Blueprint"
+   - Connect repository
+   - Render will auto-configure using `render.yaml`
+
+### Step 3: Database Setup
+
+1. **MongoDB Atlas:**
+   - Create cluster at [mongodb.com/atlas](https://mongodb.com/atlas)
+   - Get connection string
+   - Whitelist Render's IP (0.0.0.0/0 for development)
+
+2. **Update Environment Variables:**
+   - Set `MONGODB_URI` in Render dashboard
+
+### Step 4: Email Configuration
+
+1. **Gmail Setup:**
+   - Enable 2FA on Gmail
+   - Generate App Password: https://myaccount.google.com/apppasswords
+   - Use App Password in `SMTP_PASS`
+
+2. **Environment Variables:**
+   ```
+   SMTP_USER=your-email@gmail.com
+   SMTP_PASS=16-character-app-password
+   ```
+
+### Step 5: Domain & SSL
+
+- Render provides free SSL certificate
+- Custom domain available in paid plans
+- CORS_ORIGIN should match your frontend URL
 
 ## 🔑 API Endpoints
 
@@ -184,18 +256,50 @@ Test endpoints using Postman, Insomnia, or curl:
 
 ```bash
 # Health check
-curl http://localhost:5000/health
+curl https://your-render-app-url.onrender.com/health
 
 # Signup
-curl -X POST http://localhost:5000/api/auth/signup \
+curl -X POST https://your-render-app-url.onrender.com/api/auth/signup \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"test123"}'
 ```
 
-## 📝 License
+## 📝 Environment Variables Reference
+
+| Variable          | Description            | Example                |
+| ----------------- | ---------------------- | ---------------------- |
+| `NODE_ENV`        | Environment            | `production`           |
+| `PORT`            | Server port            | `10000`                |
+| `MONGODB_URI`     | MongoDB connection     | `mongodb+srv://...`    |
+| `JWT_SECRET`      | JWT signing key        | `32+ character secret` |
+| `JWT_EXPIRY`      | Token expiry           | `7d`                   |
+| `COOKIE_EXPIRY`   | Cookie expiry (days)   | `1`                    |
+| `SMTP_HOST`       | Email SMTP host        | `smtp.gmail.com`       |
+| `SMTP_PORT`       | SMTP port              | `587`                  |
+| `SMTP_USER`       | Email username         | `your-email@gmail.com` |
+| `SMTP_PASS`       | Email password/App key | `app-password`         |
+| `EMAIL_FROM_NAME` | Sender name            | `Your App`             |
+| `CORS_ORIGIN`     | Frontend URL           | `https://yourapp.com`  |
+
+## 🚨 Production Checklist
+
+- [ ] Environment variables set correctly
+- [ ] MongoDB Atlas connection working
+- [ ] Email service configured
+- [ ] CORS_ORIGIN updated for production
+- [ ] JWT_SECRET is strong (32+ characters)
+- [ ] SSL enabled (Render provides this)
+- [ ] Domain configured (optional)
+
+## 📞 Support
+
+For deployment issues:
+
+1. Check Render build logs
+2. Verify environment variables
+3. Test database connection
+4. Check email configuration
+
+## 📄 License
 
 ISC
-
-## 👨‍💻 Support
-
-For issues or questions, please check the environment configuration and logs.

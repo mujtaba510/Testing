@@ -71,6 +71,9 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-startServer();
+// Only start server if not in production (Render handles this)
+if (process.env.NODE_ENV !== "production") {
+  startServer();
+}
 
 export default app;
