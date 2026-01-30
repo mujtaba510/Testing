@@ -8,6 +8,11 @@ interface EmailConfig {
     user: string;
     pass: string;
   };
+  connectionTimeout?: number;
+  greetingTimeout?: number;
+  socketTimeout?: number;
+  debug?: boolean;
+  logger?: boolean;
 }
 
 class EmailService {
@@ -28,11 +33,18 @@ class EmailService {
     const config: EmailConfig = {
       host,
       port: parseInt(port, 10),
-      secure: parseInt(port, 10) === 465, // true for 465, false for other ports
+      secure: false, // Use STARTTLS, not SSL
       auth: {
         user,
         pass,
       },
+      // Add connection options for better reliability
+      connectionTimeout: 30000, // 30 seconds
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
+      // Add debug options
+      debug: process.env.NODE_ENV === "development",
+      logger: process.env.NODE_ENV === "development",
     };
 
     this.transporter = nodemailer.createTransport(config);

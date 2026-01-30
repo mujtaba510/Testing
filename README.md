@@ -120,15 +120,58 @@ src/
 
 ### Step 4: Email Configuration
 
-1. **Gmail Setup:**
-   - Enable 2FA on Gmail
-   - Generate App Password: https://myaccount.google.com/apppasswords
-   - Use App Password in `SMTP_PASS`
+#### **Option A: SendGrid (Recommended for Render)**
 
-2. **Environment Variables:**
+SendGrid works reliably with hosting platforms and has a generous free tier.
+
+1. **Create SendGrid Account:**
+   - Go to [sendgrid.com](https://sendgrid.com)
+   - Sign up for free account
+   - Verify your email
+
+2. **Create API Key:**
+   - Go to Settings → API Keys
+   - Create API Key with "Full Access" permissions
+   - Copy the API key
+
+3. **Environment Variables:**
    ```
+   SMTP_HOST=smtp.sendgrid.net
+   SMTP_PORT=587
+   SMTP_USER=apikey
+   SMTP_PASS=YOUR_SENDGRID_API_KEY
+   EMAIL_FROM_NAME=Your App Name
+   ```
+
+#### **Option B: Gmail (May be blocked by Render)**
+
+If you prefer Gmail:
+
+1. **Enable 2FA:** [myaccount.google.com/security](https://myaccount.google.com/security)
+2. **Generate App Password:** [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+3. **Environment Variables:**
+   ```
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
    SMTP_USER=your-email@gmail.com
    SMTP_PASS=16-character-app-password
+   EMAIL_FROM_NAME=Your App Name
+   ```
+
+#### **Option C: Mailgun**
+
+Another reliable alternative:
+
+1. **Create Mailgun Account:** [mailgun.com](https://mailgun.com)
+2. **Verify Domain** (or use sandbox)
+3. **Get SMTP Credentials**
+4. **Environment Variables:**
+   ```
+   SMTP_HOST=smtp.mailgun.org
+   SMTP_PORT=587
+   SMTP_USER=postmaster@your-domain.mailgun.org
+   SMTP_PASS=your-mailgun-password
+   EMAIL_FROM_NAME=Your App Name
    ```
 
 ### Step 5: Domain & SSL
