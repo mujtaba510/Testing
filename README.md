@@ -80,7 +80,7 @@ src/
 3. **Configure Service:**
    - **Name:** `auth-api` (or your choice)
    - **Runtime:** `Node`
-   - **Build Command:** `npm run build`
+   - **Build Command:** `npm run build` (automatically runs npm install)
    - **Start Command:** `npm start`
 
 4. **Environment Variables:**
