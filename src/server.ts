@@ -26,7 +26,9 @@ app.use(cookieParser());
 // Database connection middleware for serverless
 app.use(async (_req: Request, _res: Response, next: NextFunction) => {
   try {
+    console.log("Connecting to database...");
     await connectDB();
+    console.log("Database connected successfully");
     next();
   } catch (error) {
     console.error("Database connection failed:", error);

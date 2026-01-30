@@ -26,10 +26,13 @@ const generateToken = (userId: string): string => {
 // POST /api/auth/signup
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log("Signup request received:", { email: req.body.email });
+
     const { email, password } = req.body;
 
     // Check required fields
     if (!email || !password) {
+      console.log("Missing email or password");
       res.status(400).json({
         success: false,
         message: "Email and password are required",
@@ -40,6 +43,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.log("Invalid email format:", email);
       res.status(400).json({
         success: false,
         message: "Invalid email format",
@@ -49,6 +53,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
     // Validate password length
     if (password.length < 6) {
+      console.log("Password too short");
       res.status(400).json({
         success: false,
         message: "Password must be at least 6 characters long",
@@ -56,9 +61,11 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    console.log("Checking for existing user");
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log("User already exists:", email);
       res.status(409).json({
         success: false,
         message: "User already exists with this email",
@@ -66,14 +73,17 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    console.log("Generating OTP");
     // Generate OTP
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
 
+    console.log("Hashing OTP");
     // Hash OTP
     const salt = await bcrypt.genSalt(10);
     const hashedOTP = await bcrypt.hash(otp, salt);
 
+    console.log("Creating user");
     // Create new user
     const user = new User({
       email,
@@ -83,15 +93,18 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       isVerified: false,
     });
 
+    console.log("Saving user");
     await user.save();
 
+    console.log("Sending OTP email");
     // Send OTP via email
     try {
       await emailService.sendOTP(email, otp);
+      console.log("OTP email sent successfully");
     } catch (emailError) {
+      console.error("Email sending failed:", emailError);
       // If email fails, delete the user and return error
       await User.findByIdAndDelete(user._id);
-      console.error("Email sending failed:", emailError);
       res.status(500).json({
         success: false,
         message: "Failed to send OTP email. Please try again.",
@@ -99,6 +112,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    console.log("Signup successful");
     res.status(201).json({
       success: true,
       message: "User registered successfully. OTP sent to email.",
